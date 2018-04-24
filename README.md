@@ -49,7 +49,7 @@ for all values `x` and functions `f`. No automatic unwrapping occurs as with `re
 1. `flatMap` (aka `chain`): instance method that conforms to the [Monad spec](https://github.com/fantasyland/fantasy-land#monad), i.e. satisfying `of(x).flatMap(f) == f(x)` and `p.flatMap(of) == p` for all values `x`, promises `p` and functions `f`,
 in addition to the Pointed Functor spec.
 
-**Note** The opinionated choice for the `flatMap` is made in view of the same occuring in [other functional languages with the same meaning](https://www.scala-lang.org/api/current/scala/collection/parallel/ParIterableLike$FlatMap.html) and `chains` being [already used in JavaScript with different meaning](https://lodash.com/docs/4.17.4#chain).
+**Note** The opinionated naming choice for `flatMap` is made here in view of the same naming occuring in [other functional languages with the same meaning](https://www.scala-lang.org/api/current/scala/collection/parallel/ParIterableLike$FlatMap.html) as well as `chains` being [already used in JavaScript in different meaning](https://lodash.com/docs/4.17.4#chain).
 
 
 ## Requirements
