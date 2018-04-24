@@ -44,10 +44,10 @@ In declaring the identities below satisfied by the new methods, we write `==` to
 
 The following new methods are proposed:
 
-1. `of`: class/static method wrapping value into a promise that (together with `map` below) conforms to [the Pointed Functor spec](https://stackoverflow.com/a/41816326/1614973) spec, i.e. satisfying `of(f(x)) == of(x).map(f)`
+1. [`of`](#the-proposed-new-of-method): class/static method wrapping value into a promise that (together with `map` below) conforms to [the Pointed Functor spec](https://stackoverflow.com/a/41816326/1614973) spec, i.e. satisfying `of(f(x)) == of(x).map(f)`
 for all values `x` and functions `f`. No automatic unwrapping occurs as with `resolve`.
-1. `map`: instance method transforming promise into promise, that conforms to the [Functor spec](https://github.com/fantasyland/fantasy-land#functor), i.e. satsifying `p.map(t=>t) == p` and `p.map(f).map(g) == p.map(t=>g(f(t)))` for all promises `p` and functions `f`, `g`.
-1. `flatMap` (aka `chain`): instance method that conforms to the [Monad spec](https://github.com/fantasyland/fantasy-land#monad), i.e. satisfying `of(x).flatMap(f) == f(x)` and `p.flatMap(of) == p` for all values `x`, promises `p` and functions `f`,
+1. [`map`](#the-proposed-new-map-method): instance method transforming promise into promise, that conforms to the [Functor spec](https://github.com/fantasyland/fantasy-land#functor), i.e. satsifying `p.map(t=>t) == p` and `p.map(f).map(g) == p.map(t=>g(f(t)))` for all promises `p` and functions `f`, `g`.
+1. [`flatMap`](#the-new-flatmap-method) (aka `chain`): instance method that conforms to the [Monad spec](https://github.com/fantasyland/fantasy-land#monad), i.e. satisfying `of(x).flatMap(f) == f(x)` and `p.flatMap(of) == p` for all values `x`, promises `p` and functions `f`,
 in addition to the Pointed Functor spec.
 
 **Note.** The opinionated naming choice for `flatMap` is made here in view of the same naming occuring in [other functional languages with the same meaning](https://www.scala-lang.org/api/current/scala/collection/parallel/ParIterableLike$FlatMap.html) as well as `chains` being [already used in JavaScript in different meaning](https://lodash.com/docs/4.17.4#chain).
