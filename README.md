@@ -144,14 +144,13 @@ that will always undo the effects of any extra wrapping emanated from the propos
 #### [The Monad spec](https://github.com/fantasyland/fantasy-land#monad)
 The triple `(flatMap, map, of)` as proposed satisfies the Monad spec:
 ```js
-// 1.
-of(x).flatMap(f) == f(x)
+of(x).flatMap(f) == f(x) // 1
+p.flatMap(of) == p // 2
 ```
-for all values `x` and functions `f` whenever the computation of `f(x)` throws no errors.
+Here `1` is satisfied for all values `x` and functions `f` whenever the computation of `f(x)` throws no errors.
 If `f(x)` throws error `e`, the promise on the left-hand side is obviously rejected with `e`
 
 , promises `p`
-p.flatMap(of) == p
 
 
 
