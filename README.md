@@ -37,15 +37,16 @@ In declaring the identities below satisfied by the new methods, we write `==` to
 
 >The definition should ensure that the two values can be safely swapped out in a program that respects abstractions. For example:
 > - Two lists are equivalent if they are equivalent at all indices.
-> - Two plain old JavaScript objects, interpreted as dictionaries, are equivalent when they are equivalent for all keys.
-> - Two promises are equivalent when they yield equivalent values.
+> - Two JavaScript objects are equivalent when they hold equivalent values for all keys.
+> - Two promises are equivalent when they have the same state at the same time, and get fulfilled or rejected with equivalent values.
 > - Two functions are equivalent if they yield equivalent outputs for equivalent inputs.
 
+The following new methods are proposed:
 
-1. `of`: class/static method wrapping a value into promise that (together with `map` below) conforms to [the Pointed Functor spec](https://stackoverflow.com/a/41816326/1614973) spec, i.e. satisfying `of(f(x)) == of(x).map(f)`
+1. `of`: class/static method wrapping value into a promise that (together with `map` below) conforms to [the Pointed Functor spec](https://stackoverflow.com/a/41816326/1614973) spec, i.e. satisfying `of(f(x)) == of(x).map(f)`
 for all values `x` and functions `f`. No automatic unwrapping occurs as with `resolve`.
-1. `map`: instance method that conforms to the [Functor spec](https://github.com/fantasyland/fantasy-land#functor), i.e. satsifying `x.map(t=>t) == x` and `x.map(f).map(g) == x.map(t=>g(f(t)))` for all values `x` and functions `f`, `g`.
-1. `flatMap` (aka `chain`): instance method that conforms to the [Monad spec](https://github.com/fantasyland/fantasy-land#monad), i.e. satisfying `of(x).flatMap(f) == f(x)` and `x.flatMap(of) == x` for all `x` and functions `f`
+1. `map`: instance method transforming promise into promise, that conforms to the [Functor spec](https://github.com/fantasyland/fantasy-land#functor), i.e. satsifying `p.map(t=>t) == p` and `p.map(f).map(g) == p.map(t=>g(f(t)))` for all promises `p` and functions `f`, `g`.
+1. `flatMap` (aka `chain`): instance method that conforms to the [Monad spec](https://github.com/fantasyland/fantasy-land#monad), i.e. satisfying `of(x).flatMap(f) == f(x)` and `p.flatMap(of) == p` for all values `x`, promises `p` and functions `f`,
 in addition to the Pointed Functor spec.
 
 
