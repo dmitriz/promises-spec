@@ -10,13 +10,17 @@ A *promise* represents the eventual result of an asynchronous operation. The pri
 The current proposal suggests no change to the existing functionality. In particular, no existing code using [any of the current `Promise` methods](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) will be affected.
 
 
-## Existing Terminology
+## Current Terminology
 
 1. "promise" is an object or function with a `then` method whose behavior conforms to this specification.
-1. "thenable" is an object or function that defines a `then` method.
-1. "value" is any legal JavaScript value (including `undefined`, a thenable, or a promise).
+1. "thenable" is an object or function that defines a `then` method. A "promise" is always a "thenable".
+1. "value" is any legal JavaScript value (including `undefined`, null, a thenable, or a promise).
 1. "exception" is a value that is thrown using the `throw` statement.
 1. "reason" is a value that indicates why a promise was rejected.
+
+### Proposed Simplification. 
+In this terminology a promise is not excluded from being a possible "value".
+However, the currently available methods do not make it possible to construct a promise with fulfilled value being another promise. This proposal aims to remove this restriction and thereby the number of cases and exceptions, making the spec simpler to read, test and use, and without compromising any existing functionality.
 
 
 ## Proposed new Terminology
@@ -24,7 +28,18 @@ The current proposal suggests no change to the existing functionality. In partic
 1. "atomic" construction is one that cannot be broken into several simpler ones.
 1. "wrapping" a value `x` into a promise is a basic atomic construction creating a new promise that is fulfilled with `x`. Here `x` is allowed to be a promise `p` that would be wrapped into a promise fulfilled with `p`, making no distinction between `p` and other objects or primitive values and thus working uniformly across the language. (The currently implemented native `Promise.resolve` method can only wrap a non-promise. If a promise is passed, it will instead recusrively unwrap it, making this operation not atomic. Although it is currently not possible to wrap a promise into another promise, we prove here that adding this construction can peacefully coexist along the current spec and will make usage simpler and adressing needs of more people.)
 1. "unwrapping" (or "flattening") a promise `p` is another basic atomic construction, converse to the "wrapping", that creates a new promise `np` attempting to "unwrap" `p`, that behaves identically to `p` except when `p` resolves with value equal to another promise `q`. In the latter case, `np` adopts the complete behavior of `q`.
-1. "recursive unwrapping" a promise `p` is a non-atomic construction consisting of repeatedly unwrapping as long as possible, i.e. as long as each new unwrapped promise gets fulfilled with another promise. This is precisely the current behavior of `Promise.resolve(p)`. (Warning. Recursive unwrapping may lead to infinite loop.)
+1. "recursive unwrapping" a promise `p` is a non-atomic construction consisting of repeatedly unwrapping as long as possible, i.e. as long as each new unwrapped promise gets fulfilled with another promise. This is precisely the current behavior of `Promise.resolve(p)`. (Warning. Recursive unwrapping e.g. using current `then` and `resolve` methods may lead to infinite loops and system crashes.)
+
+
+## Proposed new atomic Methods
+
+1. `of`: class/static method wrapping a value into promise that (together with `map` below) conforms to [the Pointed Functor spec](https://stackoverflow.com/a/41816326/1614973) spec, i.e. satisfying 
+```js
+of(f(x)) === of(x).map(f)
+```
+for all values `x` and functions `f`. No automatic unwrapping occurs as with `resolve`.
+1. `map`: instance method that conforms to the [Functor spec](https://github.com/fantasyland/fantasy-land#functor), i.e. satsifying `x.map(t=>t) === x` and `x.map(f).map(g) === x.map(t=>f(g(t)))`
+1. `flatMap`
 
 
 
