@@ -27,7 +27,7 @@ However, the currently available methods do not make it possible to construct a 
 
 1. "atomic" construction is one that cannot be broken into several simpler ones.
 1. "wrapping" a value `x` into a promise is a basic atomic construction creating a new promise that is fulfilled with `x`. Here `x` is allowed to be a promise `p` that would be wrapped into a promise fulfilled with `p`, making no distinction between `p` and other objects or primitive values and thus working uniformly across the language. (The currently implemented native `Promise.resolve` method can only wrap a non-promise. If a promise is passed, it will instead recusrively unwrap it, making this operation not atomic. Although it is currently not possible to wrap a promise into another promise, we prove here that adding this construction can peacefully coexist along the current spec and will make usage simpler and adressing needs of more people.)
-1. "unwrapping" (or "flattening") a promise `p` is another basic atomic construction, converse to the "wrapping", that creates a new promise `np` attempting to "unwrap" `p`, that behaves identically to `p` except when:
+1. "unwrapping" (aka "flattening") a promise `p` is another basic atomic construction, converse to the "wrapping", that creates a new promise `np` attempting to "unwrap" `p`, that behaves identically to `p` except when:
     1. `p` resolves with value equal to another promise `q`, then `np` adopts the complete behavior of `q`.
 1. "recursive unwrapping" a promise `p` is a non-atomic construction consisting of repeatedly unwrapping as long as possible, i.e. as long as each new unwrapped promise gets fulfilled with another promise. This is precisely the current behavior of `Promise.resolve(p)`. (Warning. Recursive unwrapping e.g. using current `then` and `resolve` methods may lead to infinite loops and system crashes.)
 
@@ -83,8 +83,9 @@ The promise `of(x)` gets always immediately fulfilled with value `x`. That is al
 - It is easy to understand `resolve` as being equivalent to `of` followed by recursive unwrapping.
 
 *Related methods in other libraries/languages:*
-- [Haskell's `return`](https://wiki.haskell.org/Monad)
+- [Fluture's `of`](https://github.com/fluture-js/Fluture#of)
 - [Jabz' `of`](https://funkia.github.io/jabz/#of)
+- [Haskell's `return`](https://wiki.haskell.org/Monad)
 
 
 ### The proposed new `map` Method
@@ -101,8 +102,10 @@ to transform any promise `p` into the new promise `p.map(f)`, where:
 - It is easy to understand `then` with single argument `f` as being equivalent to `map(f)` followed by recursive unwrapping.
 
 *Related methods in other libraries/languages:*
-- [Haskell's `fmap`](https://wiki.haskell.org/Functor)
+- [`creed.map`](https://github.com/briancavalier/creed#map--promise-e-a--a--b--promise-e-b)
+- [Fluture's `map`](https://github.com/fluture-js/Fluture#map)
 - [Jabz' `map`](https://funkia.github.io/jabz/#map)
+- [Haskell's `fmap`](https://wiki.haskell.org/Functor)
 
 
 #### [The Functor spec](https://github.com/fantasyland/fantasy-land#functor)
@@ -142,8 +145,10 @@ that will always undo the effects of any extra wrapping emanated from the propos
 
 
 *Related methods in other libraries/languages:*
-- [Haskell's `bind`](https://wiki.haskell.org/Monad)
+- [`creed.chain`](https://github.com/briancavalier/creed#chain--promise-e-a--a--promise-e-b--promise-e-b)
+- [Fluture's `chain`](https://github.com/fluture-js/Fluture#chain)
 - [Jabz' `chain`](https://funkia.github.io/jabz/#chain)
+- [Haskell's `bind`](https://wiki.haskell.org/Monad)
 
 
 #### [The Monad spec](https://github.com/fantasyland/fantasy-land#monad)
