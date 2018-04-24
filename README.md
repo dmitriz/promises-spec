@@ -10,13 +10,14 @@ Historically, Promises/A+ clarifies the behavioral clauses of the earlier [Promi
 
 Finally, the core Promises/A+ specification does not deal with how to create, fulfill, or reject promises, choosing instead to focus on providing an interoperable `then` method. Future work in companion specifications may touch on these subjects.
 
-## Terminology
+## Existing Terminology
 
 1. "promise" is an object or function with a `then` method whose behavior conforms to this specification.
 1. "thenable" is an object or function that defines a `then` method.
 1. "value" is any legal JavaScript value (including `undefined`, a thenable, or a promise).
 1. "exception" is a value that is thrown using the `throw` statement.
 1. "reason" is a value that indicates why a promise was rejected.
+
 
 ## Requirements
 
@@ -34,6 +35,15 @@ A promise must be in one of three states: pending, fulfilled, or rejected.
     1. must have a reason, which must not change.
 
 Here, "must not change" means immutable identity (i.e. `===`), but does not imply deep immutability.
+
+
+## Proposed new Terminology
+
+1. "atomic" construction is one that cannot be broken into several simpler ones.
+1. "wrapping" a value `x` into a promise is a basic atomic construction creating a new promise that is fulfilled with `x`. Here `x` is allowed to be a promise `p` that would be wrapped into a promise fulfilled with `p`, making no distinction between `p` and other objects or primitive values and thus working uniformly across the language. (The currently implemented native `Promise.resolve` method can only wrap a non-promise. If a promise is passed, it will instead recusrively unwrap it, making this operation not atomic. Although it is currently not possible to wrap a promise into another promise, we prove here that adding this construction can peacefully coexist along the current spec and will make usage simpler and adressing needs of more people.)
+1. "unwrapping" (or "flattening") a promise `p` is another basic atomic construction
+creating a new promise `np` attempting to "unwrap" `p`, that behaves identically to `p` except when `p` resolves with value equal to another promise `q`, in which case `np` adopts the complete behavior of `q`.
+1. "recursive unwrapping" a promise `p` is a non-atomic construction consisting of repeatedly unwrapping as long as it is possible, i.e. as long as each new promise is fulfilled with another promise.
 
 ### The `then` Method
 
