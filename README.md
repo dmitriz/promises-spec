@@ -49,7 +49,7 @@ for all values `x` and functions `f`. No automatic unwrapping occurs as with `re
 1. `flatMap` (aka `chain`): instance method that conforms to the [Monad spec](https://github.com/fantasyland/fantasy-land#monad), i.e. satisfying `of(x).flatMap(f) == f(x)` and `p.flatMap(of) == p` for all values `x`, promises `p` and functions `f`,
 in addition to the Pointed Functor spec.
 
-**Note** The opinionated naming choice for `flatMap` is made here in view of the same naming occuring in [other functional languages with the same meaning](https://www.scala-lang.org/api/current/scala/collection/parallel/ParIterableLike$FlatMap.html) as well as `chains` being [already used in JavaScript in different meaning](https://lodash.com/docs/4.17.4#chain).
+**Note.** The opinionated naming choice for `flatMap` is made here in view of the same naming occuring in [other functional languages with the same meaning](https://www.scala-lang.org/api/current/scala/collection/parallel/ParIterableLike$FlatMap.html) as well as `chains` being [already used in JavaScript in different meaning](https://lodash.com/docs/4.17.4#chain).
 
 
 ## Requirements
@@ -70,7 +70,57 @@ A promise must be in one of three states: pending, fulfilled, or rejected.
 Here, "must not change" means the strong identity `===`, but does not imply immutability for objects.
 
 
-### The `then` Method
+### The proposed new `of` Method
+
+A promise library must provide a static aka class method `of` to wrap any value `x` into a promise `of(x)`.
+The promise `of(x)` gets always immediately fulfilled with value `x`. That is all really needed to be said to define the spec. Much simpler than `resolve`.
+
+**Notes:**
+- No distinction is made between wrapping a promise or value that is not a promise. This causes no conflict with the current behavior, because any existing method such as `then` or `resolve` will unwrap all promise layers, inluding those provided by `of`.
+- Whenever a value `x` is wrapped with `of` and subsequently passed to any existing method accepting promise, the result remains the same as passing `Promise.resolve(x)` instead, because every existing method will unwrap.
+- The existing `resolve` behaves equivalently to `of` for non-thenables, where `resolve` is more complex with it recursive unwrapping behavior.
+- It is easy to understand `resolve` as being equivalent to `of` followed by recursive unwrapping.
+
+
+### The proposed new `map` Method
+
+A promise library must provide the instance method `map` accepting a function `f`, 
+to transform any promise `p` into the new promise `p.map(f)`, where:
+    - whenever `p` is pending, `p.map(f)` is also pending;
+    - whenever `p` is rejected with reason `r`, `p.map(f)` is rejected with the same reason `r`;
+    - whenever `p` is fulfilled with value `x` and `f(x)` evaluates without errors, `p.map(f)` is fulfilled with value `f(x)`;
+    - whenever `p` is fulfilled with value `x` but executing `f(x)` throws error `e`, `p.map(f)` is rejected with `e`.
+    
+**Notes:** 
+- No distinction is made between mapping over functions returning thenables or non-thenables, unlike `then`. 
+- It is easy to understand `then` with single argument `f` as being equivalent to `map(f)` followed by recursive unwrapping.
+
+
+#### [The Functor spec](https://github.com/fantasyland/fantasy-land#functor)
+
+The present spec as proposed satisfies the Functor spec:
+```js
+p.map(f).map(g) == p.map(t=>g(f(t))
+```
+for any promise `p` and any functions `f` and `g`.
+Here we consider the simplest single type `T` consisting of all JavaScript values,
+so no restrictions on pairs `(f,g)` are needed. 
+Whenever `p` is fulfilled with value `x`,
+the computation is the same in both right- and left-hand sides, 
+with the same errors if any, proving the identity.
+
+#### [The Pointed Functor spec](https://stackoverflow.com/a/41816326/1614973) 
+
+The present spec for `of` as proposed satisfies the Pointed Functor spec:
+```js
+of(f(x)) == of(x).map(f)
+```
+for any value `x` and any function `f`.
+Since `of(x)` is always immediately fulfilled with `x`,
+the identity is obvious.
+
+
+### The existing `then` Method
 
 A promise must provide a `then` method to access its current or eventual value or reason.
 
