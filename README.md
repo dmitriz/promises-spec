@@ -27,7 +27,8 @@ However, the currently available methods do not make it possible to construct a 
 
 1. "atomic" construction is one that cannot be broken into several simpler ones.
 1. "wrapping" a value `x` into a promise is a basic atomic construction creating a new promise that is fulfilled with `x`. Here `x` is allowed to be a promise `p` that would be wrapped into a promise fulfilled with `p`, making no distinction between `p` and other objects or primitive values and thus working uniformly across the language. (The currently implemented native `Promise.resolve` method can only wrap a non-promise. If a promise is passed, it will instead recusrively unwrap it, making this operation not atomic. Although it is currently not possible to wrap a promise into another promise, we prove here that adding this construction can peacefully coexist along the current spec and will make usage simpler and adressing needs of more people.)
-1. "unwrapping" (or "flattening") a promise `p` is another basic atomic construction, converse to the "wrapping", that creates a new promise `np` attempting to "unwrap" `p`, that behaves identically to `p` except when `p` resolves with value equal to another promise `q`. In the latter case, `np` adopts the complete behavior of `q`.
+1. "unwrapping" (or "flattening") a promise `p` is another basic atomic construction, converse to the "wrapping", that creates a new promise `np` attempting to "unwrap" `p`, that behaves identically to `p` except when:
+    1. `p` resolves with value equal to another promise `q`, then `np` adopts the complete behavior of `q`.
 1. "recursive unwrapping" a promise `p` is a non-atomic construction consisting of repeatedly unwrapping as long as possible, i.e. as long as each new unwrapped promise gets fulfilled with another promise. This is precisely the current behavior of `Promise.resolve(p)`. (Warning. Recursive unwrapping e.g. using current `then` and `resolve` methods may lead to infinite loops and system crashes.)
 
 
@@ -118,6 +119,36 @@ of(f(x)) == of(x).map(f)
 for any value `x` and any function `f`.
 Since `of(x)` is always immediately fulfilled with `x`,
 the identity is obvious.
+
+
+### The new `flatMap` Method
+
+A promise library must provide the instance method `flatMap` accepting a function `f`, 
+to transform any promise `p` into the new promise `p.flatMap(f)`,
+which is equivalent to `p.map(f)` followed by a single unwrapping as defined above.
+
+This is simpler than the `then` method running recursive unwrapping.
+However, the method is fully interoperable with [any existing methods](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+that will always undo the effects of any extra wrapping emanated from the proposed new methods.
+
+
+#### [The Monad spec](https://github.com/fantasyland/fantasy-land#monad)
+The triple `(flatMap, map, of)` as proposed satisfies the Monad spec:
+```js
+// 1.
+of(x).flatMap(f) == f(x)
+```
+for all values `x` and functions `f` whenever the computation of `f(x)` throws no errors.
+If `f(x)` throws error `e`, the promise on the left-hand side is obviously rejected with `e`
+
+, promises `p`
+p.flatMap(of) == p
+
+
+
+#### [The Applicative spec](https://github.com/fantasyland/fantasy-land#applicative)
+
+
 
 
 ### The existing `then` Method
