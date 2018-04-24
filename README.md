@@ -98,7 +98,7 @@ to transform any promise `p` into the new promise `p.map(f)`, where:
 
 #### [The Functor spec](https://github.com/fantasyland/fantasy-land#functor)
 
-The present spec as proposed satisfies the Functor spec:
+The `map` method as proposed satisfies the Functor spec:
 ```js
 p.map(f).map(g) == p.map(t=>g(f(t))
 ```
@@ -111,7 +111,7 @@ with the same errors if any, proving the identity.
 
 #### [The Pointed Functor spec](https://stackoverflow.com/a/41816326/1614973) 
 
-The present spec for `of` as proposed satisfies the Pointed Functor spec:
+The pair `(map, of)` as proposed satisfies the Pointed Functor spec:
 ```js
 of(f(x)) == of(x).map(f)
 ```
