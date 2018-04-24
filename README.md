@@ -1,14 +1,14 @@
-# Promises/A+
+# Entension proposal fo the [Promises/A+ spec](https://promisesaplus.com/)
 
-**An open standard for sound, interoperable JavaScript promises&mdash;by implementers, for implementers.**
+## Goals
 
-A *promise* represents the eventual result of an asynchronous operation. The primary way of interacting with a promise is through its `then` method, which registers callbacks to receive either a promise's eventual value or the reason why the promise cannot be fulfilled.
+1. Extend the existing spec with simpler atomic methods that are frequently requested by library writers but currently are not provided.
+1. Simplify the current spec.
 
-This specification details the behavior of the `then` method, providing an interoperable base which all Promises/A+ conformant promise implementations can be depended on to provide. As such, the specification should be considered very stable. Although the Promises/A+ organization may occasionally revise this specification with minor backward-compatible changes to address newly-discovered corner cases, we will integrate large or backward-incompatible changes only after careful consideration, discussion, and testing.
+A *promise* represents the eventual result of an asynchronous operation. The primary way of interacting with a promise remains through its `then` method, which registers callbacks to receive either a promise's eventual value or the reason why the promise cannot be fulfilled. 
 
-Historically, Promises/A+ clarifies the behavioral clauses of the earlier [Promises/A proposal](http://wiki.commonjs.org/wiki/Promises/A), extending it to cover *de facto* behaviors and omitting parts that are underspecified or problematic.
+The current proposal suggests no change to the existing functionality. In particular, no existing code using [any of the current `Promise` methods](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) will be affected.
 
-Finally, the core Promises/A+ specification does not deal with how to create, fulfill, or reject promises, choosing instead to focus on providing an interoperable `then` method. Future work in companion specifications may touch on these subjects.
 
 ## Existing Terminology
 
@@ -17,6 +17,15 @@ Finally, the core Promises/A+ specification does not deal with how to create, fu
 1. "value" is any legal JavaScript value (including `undefined`, a thenable, or a promise).
 1. "exception" is a value that is thrown using the `throw` statement.
 1. "reason" is a value that indicates why a promise was rejected.
+
+
+## Proposed new Terminology
+
+1. "atomic" construction is one that cannot be broken into several simpler ones.
+1. "wrapping" a value `x` into a promise is a basic atomic construction creating a new promise that is fulfilled with `x`. Here `x` is allowed to be a promise `p` that would be wrapped into a promise fulfilled with `p`, making no distinction between `p` and other objects or primitive values and thus working uniformly across the language. (The currently implemented native `Promise.resolve` method can only wrap a non-promise. If a promise is passed, it will instead recusrively unwrap it, making this operation not atomic. Although it is currently not possible to wrap a promise into another promise, we prove here that adding this construction can peacefully coexist along the current spec and will make usage simpler and adressing needs of more people.)
+1. "unwrapping" (or "flattening") a promise `p` is another basic atomic construction, converse to the "wrapping", that creates a new promise `np` attempting to "unwrap" `p`, that behaves identically to `p` except when `p` resolves with value equal to another promise `q`. In the latter case, `np` adopts the complete behavior of `q`.
+1. "recursive unwrapping" a promise `p` is a non-atomic construction consisting of repeatedly unwrapping as long as possible, i.e. as long as each new unwrapped promise gets fulfilled with another promise. This is precisely the current behavior of `Promise.resolve(p)`. (Warning. Recursive unwrapping may lead to infinite loop.)
+
 
 
 ## Requirements
@@ -29,21 +38,13 @@ A promise must be in one of three states: pending, fulfilled, or rejected.
     1. may transition to either the fulfilled or rejected state.
 1. When fulfilled, a promise:
     1. must not transition to any other state.
-    1. must have a value, which must not change.
+    1. must have a value, which must not change (for an object, its reference must not change).
 1. When rejected, a promise:
     1. must not transition to any other state.
     1. must have a reason, which must not change.
 
-Here, "must not change" means immutable identity (i.e. `===`), but does not imply deep immutability.
+Here, "must not change" means the strong identity `===`, but does not imply immutability for objects.
 
-
-## Proposed new Terminology
-
-1. "atomic" construction is one that cannot be broken into several simpler ones.
-1. "wrapping" a value `x` into a promise is a basic atomic construction creating a new promise that is fulfilled with `x`. Here `x` is allowed to be a promise `p` that would be wrapped into a promise fulfilled with `p`, making no distinction between `p` and other objects or primitive values and thus working uniformly across the language. (The currently implemented native `Promise.resolve` method can only wrap a non-promise. If a promise is passed, it will instead recusrively unwrap it, making this operation not atomic. Although it is currently not possible to wrap a promise into another promise, we prove here that adding this construction can peacefully coexist along the current spec and will make usage simpler and adressing needs of more people.)
-1. "unwrapping" (or "flattening") a promise `p` is another basic atomic construction
-creating a new promise `np` attempting to "unwrap" `p`, that behaves identically to `p` except when `p` resolves with value equal to another promise `q`, in which case `np` adopts the complete behavior of `q`.
-1. "recursive unwrapping" a promise `p` is a non-atomic construction consisting of repeatedly unwrapping as long as it is possible, i.e. as long as each new promise is fulfilled with another promise.
 
 ### The `then` Method
 
