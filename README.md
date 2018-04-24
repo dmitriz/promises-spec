@@ -33,13 +33,21 @@ However, the currently available methods do not make it possible to construct a 
 
 ## Proposed new atomic Methods
 
-1. `of`: class/static method wrapping a value into promise that (together with `map` below) conforms to [the Pointed Functor spec](https://stackoverflow.com/a/41816326/1614973) spec, i.e. satisfying 
-```js
-of(f(x)) === of(x).map(f)
-```
+In declaring the identities below satisfied by the new methods, we write `==` to denote the [terminology of equivalence](https://github.com/fantasyland/fantasy-land#terminology) of values:
+
+>The definition should ensure that the two values can be safely swapped out in a program that respects abstractions. For example:
+> - Two lists are equivalent if they are equivalent at all indices.
+> - Two plain old JavaScript objects, interpreted as dictionaries, are equivalent when they are equivalent for all keys.
+> - Two promises are equivalent when they yield equivalent values.
+> - Two functions are equivalent if they yield equivalent outputs for equivalent inputs.
+
+
+1. `of`: class/static method wrapping a value into promise that (together with `map` below) conforms to [the Pointed Functor spec](https://stackoverflow.com/a/41816326/1614973) spec, i.e. satisfying `of(f(x)) == of(x).map(f)`
 for all values `x` and functions `f`. No automatic unwrapping occurs as with `resolve`.
-1. `map`: instance method that conforms to the [Functor spec](https://github.com/fantasyland/fantasy-land#functor), i.e. satsifying `x.map(t=>t) === x` and `x.map(f).map(g) === x.map(t=>f(g(t)))`
-1. `flatMap`
+1. `map`: instance method that conforms to the [Functor spec](https://github.com/fantasyland/fantasy-land#functor), i.e. satsifying `x.map(t=>t) === x` and `x.map(f).map(g) === x.map(t=>g(f(t)))` for all values `x` and functions `f`, `g`.
+1. `flatMap` (aka `chain`): instance method that conforms to the [Monad spec](https://github.com/fantasyland/fantasy-land#monad), i.e. satisfying `of(x).flatMap(f) === f(a)` (left identity)
+m.chain(M.of)
+in addition to the Pointed Functor spec
 
 
 
@@ -67,7 +75,7 @@ A promise must provide a `then` method to access its current or eventual value o
 
 A promise's `then` method accepts two arguments:
 
-```js
+```js 
 promise.then(onFulfilled, onRejected)
 ```
 
