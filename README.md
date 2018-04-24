@@ -83,7 +83,9 @@ The promise `of(x)` gets always immediately fulfilled with value `x`. That is al
 - It is easy to understand `resolve` as being equivalent to `of` followed by recursive unwrapping.
 
 *Related methods in other libraries/languages:*
-- [Jabz](https://funkia.github.io/jabz/#of)
+- [Haskell's `return`](https://wiki.haskell.org/Monad)
+- [Jabz' `of`](https://funkia.github.io/jabz/#of)
+
 
 ### The proposed new `map` Method
 
@@ -99,14 +101,16 @@ to transform any promise `p` into the new promise `p.map(f)`, where:
 - It is easy to understand `then` with single argument `f` as being equivalent to `map(f)` followed by recursive unwrapping.
 
 *Related methods in other libraries/languages:*
-- [Jabz](https://funkia.github.io/jabz/#map)
+- [Haskell's `fmap`](https://wiki.haskell.org/Functor)
+- [Jabz' `map`](https://funkia.github.io/jabz/#map)
 
 
 #### [The Functor spec](https://github.com/fantasyland/fantasy-land#functor)
 
 The `map` method as proposed satisfies the Functor spec:
 ```js
-p.map(f).map(g) == p.map(t=>g(f(t))
+p.map(t=>t) == p
+p.map(f).map(g) == p.map(x=>g(f(x))
 ```
 for any promise `p` and any functions `f` and `g`.
 Here we consider the simplest single type `T` consisting of all JavaScript values,
