@@ -82,6 +82,8 @@ The promise `of(x)` gets always immediately fulfilled with value `x`. That is al
 - The existing `resolve` behaves equivalently to `of` for non-thenables, where `resolve` is more complex with it recursive unwrapping behavior.
 - It is easy to understand `resolve` as being equivalent to `of` followed by recursive unwrapping.
 
+*Related methods in other libraries/languages:*
+- [Jabz](https://funkia.github.io/jabz/#of)
 
 ### The proposed new `map` Method
 
@@ -95,6 +97,9 @@ to transform any promise `p` into the new promise `p.map(f)`, where:
 **Notes:** 
 - No distinction is made between mapping over functions returning thenables or non-thenables, unlike `then`. 
 - It is easy to understand `then` with single argument `f` as being equivalent to `map(f)` followed by recursive unwrapping.
+
+*Related methods in other libraries/languages:*
+- [Jabz](https://funkia.github.io/jabz/#map)
 
 
 #### [The Functor spec](https://github.com/fantasyland/fantasy-land#functor)
@@ -130,6 +135,10 @@ which is equivalent to `p.map(f)` followed by a single unwrapping as defined abo
 This is simpler than the `then` method running recursive unwrapping.
 However, the method is fully interoperable with [any existing methods](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 that will always undo the effects of any extra wrapping emanated from the proposed new methods.
+
+
+*Related methods in other libraries/languages:*
+- [Jabz](https://funkia.github.io/jabz/#chain)
 
 
 #### [The Monad spec](https://github.com/fantasyland/fantasy-land#monad)
